@@ -30,7 +30,7 @@ VP8_ENCODE = Template("""queue !
 H264_ENCODE = Template("""queue !
                           videorate ! videoscale !
                           video/x-raw,framerate=(fraction)$framerate/1,width=(int)$width,height=(int)$height !
-                          x264enc byte-stream=true bitrate=500 pass=5 speed-preset=1""")
+                          x264enc byte-stream=true bitrate=500 pass=pass1 speed-preset=1""")
 
 H263_1998_ENCODE = Template("""queue !
                             videorate max-rate=30 ! videoscale !
@@ -48,6 +48,7 @@ VIDEO_TEST_SRC = "videotestsrc pattern=18 ! video/x-raw,framerate=(fraction)15/1
 AUDIO_TEST_SRC = "audiotestsrc ! audioconvert ! queue"
 
 RTPBIN = "rtpbin"
+
 
 # TODO:
 #  tcpclientsrc port=8554 host=localhost ! gdpdepay ! application/x-rtp, payload=96 !
