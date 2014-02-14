@@ -1,0 +1,8 @@
+"""RoomManager
+
+
+"""
+
+
+class RoomManager:
+    pass

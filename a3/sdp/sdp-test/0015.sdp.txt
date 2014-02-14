@@ -1,0 +1,35 @@
+#
+# http://www.voipinfo.ru/forum/viewtopic.php?p=83897
+#
+
+v=0
+o=- 1338288302 1338288302 IN IP4 192.168.1.1
+s=-
+c=IN IP4 192.168.1.1
+t=0 0
+m=audio 35018 RTP/AVP 18 103 0 8 104 105 4 3 96 97 98 99 100 102
+a=rtpmap:18 G729/8000
+a=fmtp:18 annexb=no
+a=rtpmap:103 G729/8000
+a=fmtp:103 annexb=yes
+a=rtpmap:0 PCMU/8000
+a=rtpmap:8 PCMA/8000
+a=rtpmap:104 G729/8000
+a=fmtp:104 annexb=no
+a=rtpmap:105 G729/8000
+a=fmtp:105 annexb=yes
+a=rtpmap:4 G723/8000
+a=fmtp:4 annexa=yes
+a=rtpmap:3 gsm/8000
+a=rtpmap:96 speex/8000
+a=fmtp:96 mode=3;vbr=off
+a=rtpmap:97 iLBC/8000
+a=fmtp:97 mode=30
+a=rtpmap:98 iLBC/8000
+a=fmtp:98 mode=20
+a=rtpmap:99 AMR/8000
+a=fmtp:99 mode-set=7
+a=rtpmap:100 G726-40/8000
+a=rtpmap:102 telephone-event/8000
+a=fmtp:102 0-15
+a=sendrecv

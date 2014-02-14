@@ -1,0 +1,19 @@
+#
+#
+#  Multifon
+#  Audio-Video request
+#  Audio-response
+#
+
+
+v=0
+o=79266455132 0 0 IN IP4 193.201.229.35
+s=-
+c=IN IP4 193.201.229.35
+t=0 0
+m=audio 36138 RTP/AVP 8
+a=sendrecv
+a=rtpmap:8 PCMA/8000
+m=video 0 RTP/AVP 96
+b=AS:300
+a=rtpmap:96 H264/90000
