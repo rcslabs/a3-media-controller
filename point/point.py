@@ -68,11 +68,10 @@ class Point(IMediaPointListener):
                                                     transcoding_factory=self.__transcoding_factory)
 
             # add saving capability
-            #self.__audio_point = FilesaveMediaPoint(self.__audio_point, self.__transcoding_factory)
+            #self.__add_filesave_capability()
 
             # add dtmf
-            self.__audio_point = DtmfMediaPoint(self.__audio_point, self.__transcoding_factory)
-            self.__dtmf_sender = self.__audio_point
+            self.__add_dtmf_capability()
 
             self.__audio_point.set_listener(self)
             self.__audio_point.set_profile(self.__profile)
@@ -96,7 +95,6 @@ class Point(IMediaPointListener):
     #
     # Public:
     #
-
     @property
     def audio_point(self):
         return self.__audio_point
@@ -226,3 +224,10 @@ class Point(IMediaPointListener):
             self.__video_point.stop()
             self.__video_point = None
             self.__video_point_ready = True
+
+    def __add_filesave_capability(self):
+        self.__audio_point = FilesaveMediaPoint(self.__audio_point, self.__transcoding_factory)
+
+    def __add_dtmf_capability(self):
+        self.__audio_point = DtmfMediaPoint(self.__audio_point, self.__transcoding_factory)
+        self.__dtmf_sender = self.__audio_point

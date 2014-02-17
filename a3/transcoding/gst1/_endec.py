@@ -56,14 +56,15 @@ RTP_CAPS = {
 
 def create_depay(rtp_codec):
     assert type(rtp_codec) is RtpCodec
+    codec = rtp_codec.base_codec
     depay = None
-    if rtp_codec == CODEC.PCMA:
+    if codec == CODEC.PCMA:
         depay = PCMADepay()
-    elif rtp_codec == CODEC.H264:
+    elif codec == CODEC.H264:
         depay = H264Depay()
-    elif rtp_codec == CODEC.VP8:
+    elif codec == CODEC.VP8:
         depay = VP8Depay()
-    elif rtp_codec == CODEC.H263_1998:
+    elif codec == CODEC.H263_1998:
         depay = H263_1998Depay()
     else:
         # TODO: throw exception
@@ -80,14 +81,15 @@ def create_pay(rtp_codec):
     :return:
     """
     assert type(rtp_codec) is RtpCodec
+    codec = rtp_codec.base_codec
     pay = None
-    if rtp_codec == CODEC.PCMA:
+    if codec == CODEC.PCMA:
         pay = PCMAPay(1111L, rtp_codec.payload_type)
-    elif rtp_codec == CODEC.H264:
+    elif codec == CODEC.H264:
         pay = H264Pay(2222L, rtp_codec.payload_type)
-    elif rtp_codec == CODEC.VP8:
+    elif codec == CODEC.VP8:
         pay = VP8Pay(2222L, rtp_codec.payload_type)
-    elif rtp_codec == CODEC.H263_1998:
+    elif codec == CODEC.H263_1998:
         pay = H263_1998Pay(2222L, rtp_codec.payload_type)
     else:
         # TODO: throw exception

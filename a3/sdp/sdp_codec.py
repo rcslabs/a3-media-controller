@@ -132,9 +132,9 @@ class SdpCodecCollection(object):
         :param codec: Codec
         """
         assert type(codec) is Codec
-        known_codecs = [rtp_codec for rtp_codec in KNOWN_RTP_CODECS if rtp_codec == codec]
+        known_codecs = [rtp_codec for rtp_codec in KNOWN_RTP_CODECS if rtp_codec.base_codec == codec]
         if len(known_codecs):
-            rtp_codec = known_codecs[0]
+            rtp_codec = known_codecs[0].clone()
         else:
             payload_types = list(DYNAMIC_PT)
             for rtp_codec in self.__rtp_codecs:

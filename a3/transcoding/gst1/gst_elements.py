@@ -49,7 +49,6 @@ AUDIO_TEST_SRC = "audiotestsrc ! audioconvert ! queue"
 
 RTPBIN = "rtpbin"
 
-
 # TODO:
 #  tcpclientsrc port=8554 host=localhost ! gdpdepay ! application/x-rtp, payload=96 !
 

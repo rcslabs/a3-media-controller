@@ -3,14 +3,55 @@
 Codec description
 """
 
-
 from ._media_type import MediaType
+from abc import ABCMeta, abstractproperty, abstractmethod
 
 
 DEFAULT_CHANNELS = 1
 
 
-class Codec(object):
+class ICodec(object):
+    __metaclass__ = ABCMeta
+
+    @abstractproperty
+    def media_type(self):
+        """
+        return media type of codec
+        """
+
+    @abstractmethod
+    def clone(self):
+        """
+        return copy of codec
+        """
+
+
+class RawCodec(ICodec):
+    def __init__(self, media_type):
+        assert type(media_type) is MediaType
+        self.__media_type = media_type
+
+    @property
+    def media_type(self):
+        return self.__media_type
+
+    def __str__(self):
+        return "RAW"
+
+    def __hash__(self):
+        return hash(self.__media_type)
+
+    def __eq__(self, other):
+        return type(other) is RawCodec and self.media_type == other.media_type
+
+    def __ne__(self, other):
+        return not (self == other)
+
+    def clone(self):
+        return RawCodec(self.__media_type)
+
+
+class Codec(ICodec):
     def __init__(self, media_type, encoding_name, clock_rate, channels):
         assert type(media_type) is MediaType
         assert type(encoding_name) is str
@@ -18,21 +59,21 @@ class Codec(object):
         assert type(channels) is int
 
         self._media_type = media_type
-        self._encoding_name = encoding_name
-        self._clock_rate = clock_rate
-        self._channels = channels or DEFAULT_CHANNELS
+        self.__encoding_name = encoding_name
+        self.__clock_rate = clock_rate
+        self.__channels = channels or DEFAULT_CHANNELS
 
     @property
     def encoding_name(self):
-        return self._encoding_name
+        return self.__encoding_name
 
     @property
     def clock_rate(self):
-        return self._clock_rate
+        return self.__clock_rate
 
     @property
     def channels(self):
-        return self._channels
+        return self.__channels
 
     @property
     def media_type(self):
@@ -40,46 +81,77 @@ class Codec(object):
 
     def clone(self):
         return Codec(self._media_type,
-                     self._encoding_name,
-                     self._clock_rate,
-                     self._channels)
+                     self.__encoding_name,
+                     self.__clock_rate,
+                     self.__channels)
 
     def __str__(self):
-        return "Codec(%s/%d/%d)" % (self._encoding_name, self._clock_rate, self._channels)
+        return "%s/%d" % (self.__encoding_name, self.__clock_rate) + (
+            "/" + str(self.__channels) if self.__channels != 2 else "")
 
     def __hash__(self):
-        return hash((self.media_type, self._encoding_name, self._clock_rate, self._channels))
+        return hash((self.media_type, self.__encoding_name, self.__clock_rate, self.__channels))
 
     def __eq__(self, other):
-        assert isinstance(other, Codec)
-        return (self._encoding_name, self._clock_rate, self._channels) == \
-               (other._encoding_name, other._clock_rate, other._channels)
+        return type(other) is Codec and (self.__encoding_name, self.__clock_rate, self.__channels) == \
+            (other.__encoding_name, other.__clock_rate, other.__channels)
 
     def __ne__(self, other):
         return not (self == other)
 
 
-class RtpCodec(Codec):
+class RtpCodec(ICodec):
     """
     TODO: redefine __eq__
     also fix Codec::__eq__
     """
-    def __init__(self, codec, payload_type):
-        assert type(codec) is Codec
+
+    def __init__(self, base_codec, payload_type):
+        assert type(base_codec) is Codec
         assert type(payload_type) is int
-        super(RtpCodec, self).__init__(codec.media_type, codec.encoding_name, codec.clock_rate, codec.channels)
-        self._payload_type = payload_type
+        self.__base_codec = base_codec
+        self.__payload_type = payload_type
+
+    @property
+    def media_type(self):
+        return self.__base_codec.media_type
 
     @property
     def payload_type(self):
-        return self._payload_type
-
-    def __str__(self):
-        return "RtpCodec(%s/%d/%d pt=%d)" % (self._encoding_name, self._clock_rate, self._channels, self._payload_type)
+        return self.__payload_type
 
     @property
-    def codec(self):
-        return Codec(self._media_type, self._encoding_name, self._clock_rate, self._channels)
+    def encoding_name(self):
+        return self.__base_codec.encoding_name
+
+    @property
+    def clock_rate(self):
+        return self.__base_codec.encoding_name
+
+    @property
+    def channels(self):
+        return self.__base_codec.channels
+
+    def clone(self):
+        return RtpCodec(self.__base_codec.clone(), self.__payload_type)
+
+    @property
+    def base_codec(self):
+        return self.__base_codec
+
+    def __str__(self):
+        return str(self.__base_codec) + ",pt=" + str(self.__payload_type)
+
+    def __hash__(self):
+        return hash((self.__base_codec, self.__payload_type))
+
+    def __eq__(self, other):
+        return type(other) is RtpCodec and \
+            self.base_codec == other.base_codec and \
+            self.payload_type == other.payload_type
+
+    def __ne__(self, other):
+        return not (self == other)
 
 
 def AudioCodec(encoding_name, clock_rate, channels):
@@ -106,8 +178,8 @@ class CODEC:
     H263 = VideoCodec("H263-1998", 90000, 1)
 
     # utils
-    RAW_AUDIO = AudioCodec("RAW", 8000, 1)
-    RAW_VIDEO = VideoCodec("RAW", 90000, 1)
+    RAW_AUDIO = RawCodec(MediaType.AUDIO)
+    RAW_VIDEO = RawCodec(MediaType.VIDEO)
 
     @classmethod
     def RAW(cls, media_type):

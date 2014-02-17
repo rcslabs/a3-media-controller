@@ -19,7 +19,9 @@ from ._endec import RTP_CAPS, create_depay, create_pay
 import re
 
 
-def get_caps_for_codec(codec):
+def get_caps_for_rtp_codec(rtp_codec):
+    assert type(rtp_codec) is RtpCodec
+    codec = rtp_codec.base_codec
     assert codec in RTP_CAPS
     return Gst.caps_from_string(RTP_CAPS[codec])
 
@@ -106,7 +108,7 @@ class RtpFrontend(IRtpFrontend):
         rtp_codecs = [c for c in self.__remote_rtp_codecs if c.payload_type == pt]
         assert len(rtp_codecs) == 1
         LOG.debug("RtpFrontend: request_pt_map on pt=%d: result: %s", pt, str(rtp_codecs[0]))
-        return get_caps_for_codec(rtp_codecs[0].codec)
+        return get_caps_for_rtp_codec(rtp_codecs[0])
 
     def force_key_unit(self):
         if self.__depay and self.__media_type is MediaType.VIDEO:
@@ -196,7 +198,7 @@ class RtpFrontend(IRtpFrontend):
         src_pad.set_active(True)
         self.__bin._element.add_pad(src_pad)
 
-        self.__media_source.resolve(MediaSource(src_pad, remote_codec.codec))
+        self.__media_source.resolve(MediaSource(src_pad, remote_codec.base_codec))
 
     def __create_pay(self, local_rtp_codec):
         """
@@ -213,7 +215,7 @@ class RtpFrontend(IRtpFrontend):
         sink_pad.set_active(True)
         self.__bin._element.add_pad(sink_pad)
 
-        self.__media_destination.resolve(MediaDestination(sink_pad, [local_rtp_codec.codec]))
+        self.__media_destination.resolve(MediaDestination(sink_pad, [local_rtp_codec.base_codec]))
 
     def dispose(self):
         assert self.__conn is not None

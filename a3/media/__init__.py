@@ -7,5 +7,5 @@ __author__ = 'RCSLabs'
 
 
 from ._media_type import MediaType
-from ._codec import Codec, RtpCodec, CODEC
+from ._codec import ICodec, RawCodec, Codec, RtpCodec, CODEC
 #from ._pt_codec_collection import PtCodecCollection

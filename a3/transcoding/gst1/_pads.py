@@ -10,7 +10,7 @@ __author__ = 'esix'
 
 import collections
 
-from ...media import Codec
+from ...media import ICodec, RawCodec
 
 from .._base import IMediaSource, IMediaDestination
 from ._base import Gst
@@ -49,7 +49,7 @@ class VirtualMediaDestination(IMediaDestination, _MediaPromise):
 class MediaSource(VirtualMediaSource):
     def __init__(self, pad, codec):
         assert isinstance(pad, Gst.Pad)
-        assert isinstance(codec, Codec)
+        assert isinstance(codec, ICodec)
         assert pad.get_direction() == Gst.PadDirection.SRC
 
         self.__pad = pad
@@ -67,7 +67,7 @@ class MediaSource(VirtualMediaSource):
         return self.__codec
 
     def is_raw(self):
-        return self.__codec.encoding_name == "RAW"
+        return type(self.__codec) is RawCodec
 
     def __str__(self):
         return "MediaSource [%s]" % str(self.__codec)
@@ -77,7 +77,7 @@ class MediaDestination(VirtualMediaDestination):
     def __init__(self, pad, acceptable_codecs):
         assert isinstance(pad, Gst.Pad)
         assert isinstance(acceptable_codecs, collections.Iterable)
-        assert False not in list([isinstance(codec, Codec) for codec in acceptable_codecs])
+        assert False not in list([isinstance(codec, ICodec) for codec in acceptable_codecs])
         assert pad.get_direction() == Gst.PadDirection.SINK
 
         self.__pad = pad
@@ -95,12 +95,12 @@ class MediaDestination(VirtualMediaDestination):
         return self.__acceptable_codecs
 
     def accepts(self, codec):
-        assert isinstance(codec, Codec)
+        assert isinstance(codec, ICodec)
         return codec in self.__acceptable_codecs
 
     def accepts_raw(self):
         for codec in self.__acceptable_codecs:
-            if codec.encoding_name == "RAW":
+            if type(codec) is RawCodec:
                 return True
         return False
 
