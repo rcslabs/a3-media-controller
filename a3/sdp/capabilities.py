@@ -26,8 +26,6 @@ import re
 
 
 DEFAULT_PROFILE = raw.entity.MediaDescriptionProto.RTP_AVP
-#DEFAULT_AUDIO_CODECS = [CODEC.PCMA]
-#DEFAULT_VIDEO_CODECS = [CODEC.H264]
 
 
 class Cc(object):

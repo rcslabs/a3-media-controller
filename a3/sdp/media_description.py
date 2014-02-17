@@ -50,6 +50,14 @@ class MediaDescription(object):
         return self.__raw_media.media_description.media_type
 
     @property
+    def proto(self):
+        """
+        There are two objects MediaDescription (media_description as the whole object and the first line of m= in sdp)
+        TODO: rename!
+        """
+        return self.__raw_media.media_description.proto
+
+    @property
     def rtp_codecs(self):
         return self.__sdp_codec_collection.rtp_codecs
 

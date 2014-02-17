@@ -33,28 +33,34 @@ class MediaDescriptionProtoValue(str):
 
 
 class MediaDescriptionProto:
+    """
+    Profiles:
+    RTP/AVP
+    RTP/AVPF
+    RTP/SAVP
+    RTP/SAVPF
+    SCTP/DTLS
+    udp
+
+    Additional:
+    RTMP
+
+    TODO:
+    profiles should be list as there might be many values
+    """
     RTP_AVP = MediaDescriptionProtoValue("RTP/AVP")
-    #RTP_AVPF = MediaDescriptionProtoValue("RTP/AVPF")
-    #RTP_SAVP = MediaDescriptionProtoValue("RTP/SAVP")
     RTP_SAVPF = MediaDescriptionProtoValue("RTP/SAVPF")
-    #SCTP_DTLS = MediaDescriptionProtoValue("SCTP/DTLS")
-    #UDP = MediaDescriptionProtoValue("udp")
+    RTMP = MediaDescriptionProtoValue("RTMP")
 
     @classmethod
     def from_string(cls, string):
         assert type(string) is str
         if string == cls.RTP_AVP:
             return cls.RTP_AVP
-        #elif string == cls.RTP_AVPF:
-        #    return cls.RTP_AVPF
-        #elif string == cls.RTP_SAVP:
-        #    return cls.RTP_SAVP
         elif string == cls.RTP_SAVPF:
             return cls.RTP_SAVPF
-        #elif string == cls.SCTP_DTLS:
-        #    return cls.SCTP_DTLS
-        #elif string == cls.UDP:
-        #    return cls.UDP
+        elif string == cls.RTMP:
+            return cls.RTMP
         else:
             raise ParseError("MediaDescription Proto is " + repr(string))
 

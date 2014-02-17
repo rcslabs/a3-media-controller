@@ -61,7 +61,7 @@ class Point(IMediaPointListener):
         if self.__local_sdp.audio:
             self.__audio_point = RtpMediaPoint(self.__point_id + ".audio", self.__transcoding_factory)
 
-            if self.__local_sdp.audio.crypto:
+            if self.__local_sdp.audio.proto == "RTP/SAVPF":
                 self.__audio_point = SrtpMediaPoint(self.__audio_point,
                                                     balancer=balancer,
                                                     config=config,
@@ -80,7 +80,7 @@ class Point(IMediaPointListener):
         if self.__local_sdp.video:
             self.__video_point = RtpMediaPoint(self.__point_id + ".video", self.__transcoding_factory)
 
-            if self.__local_sdp.video.crypto:
+            if self.__local_sdp.video.proto == "RTP/SAVPF":
                 self.__video_point = SrtpMediaPoint(self.__video_point,
                                                     balancer=balancer,
                                                     config=config,

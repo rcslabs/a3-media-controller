@@ -87,7 +87,7 @@ class Codec(ICodec):
 
     def __str__(self):
         return "%s/%d" % (self.__encoding_name, self.__clock_rate) + (
-            "/" + str(self.__channels) if self.__channels != 2 else "")
+            "/" + str(self.__channels) if self.__channels != 1 else "")
 
     def __hash__(self):
         return hash((self.media_type, self.__encoding_name, self.__clock_rate, self.__channels))
