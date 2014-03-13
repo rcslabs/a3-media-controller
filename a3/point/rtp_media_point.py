@@ -27,7 +27,6 @@ class RtpMediaPoint(IMediaPoint):
         self.__local_media_description = None
         self.__transcoding_factory = transcoding_factory
         self.__profile = None
-        #self.__fake_room = None
 
     @property
     def rtp_port(self):
@@ -55,7 +54,7 @@ class RtpMediaPoint(IMediaPoint):
         self.__profile = profile
 
     def start(self):
-        LOG.debug("MediaPoint %s: starting", self.__point_id)
+        LOG.debug("RtpMediaPoint %s: starting", self.__point_id)
         assert self.__profile
         #
         # Currently we accept points with local media description set before start
@@ -66,7 +65,7 @@ class RtpMediaPoint(IMediaPoint):
         assert isinstance(self.__rtp_frontend, IRtpFrontend)
 
         # fill local sdp with opened ports
-        LOG.debug("MediaPoint: opened ports: %i, %i", self.__rtp_frontend.rtp_port, self.__rtp_frontend.rtcp_port)
+        LOG.debug("RtpMediaPoint: opened ports: %i, %i", self.__rtp_frontend.rtp_port, self.__rtp_frontend.rtcp_port)
         self.__local_media_description.set_addr(self.__rtp_frontend.rtp_port, self.__profile.ip)
         if self.__listener is not None:
             self.__listener.media_point_frontend_ready(self)
@@ -133,10 +132,10 @@ class RtpMediaPoint(IMediaPoint):
         #self.__fake_room.play()
 
     def add_to_pipeline(self, pipeline):
-        pipeline.add(self.__rtp_frontend.gst_element)
+        self.__rtp_frontend.set_context(pipeline)
 
     def remove_from_pipeline(self, pipeline):
-        pipeline.remove(self.__rtp_frontend.gst_element)
+        self.__rtp_frontend.set_context(None)
 
     #
     # IMediaSourceProvider

@@ -39,6 +39,7 @@ class RtpFrontend(IRtpFrontend):
 
         self.__conn = RtpSocketPair(profile, Gst1TranscodingFactory())
 
+        self.__context = None
         self.__bin = GstBin()
         self.__rtp_bin = RtpBin(pad_added=self.pad_added, request_pt_map=self.request_pt_map)
         self.__bin.add(self.__rtp_bin)
@@ -87,6 +88,22 @@ class RtpFrontend(IRtpFrontend):
     def cname(self, cname):
         assert type(cname) is str
         self.__rtp_bin.cname = cname
+
+    def set_context(self, context):
+        assert context is None or type(context) is GstPipeline
+
+        if self.__context is context:
+            return
+
+        if self.__context:
+            self.__context.remove(self.gst_element)
+
+        self.__context = context
+
+        if self.__context:
+            self.__context = context
+            self.__context.add(self.gst_element)
+            #self.gst_element.play()
 
     def pad_added(self, obj, pad, param):
         pad_name = pad.get_name()
