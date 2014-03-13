@@ -57,12 +57,15 @@ class DtmfSender(IDtmfSender, threading.Thread):
 
     def send_dtmf(self, dtmf):
         assert type(dtmf) is str
+        dtmf_numbers = {
+            '0': 0,  '1': 1,  '2': 2,  '3': 3,
+            '4': 4,  '5': 5,  '6': 6,  '7': 7,
+            '8': 8,  '9': 9,  '*': 10, '#': 11,
+            'A': 12, 'B': 13, 'C': 14, 'D': 15
+        }
         for c in dtmf:
-            #
-            # TODO: support additional DTMF characters
-            #
-            if c in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']:
-                self.__dtmf_buffer.append(c)
+            if c in dtmf_numbers:
+                self.__dtmf_buffer.append(dtmf_numbers[c])
         self.__send_dtmf_event.set()
 
     def add_to_pipeline(self, pipeline):
@@ -134,10 +137,10 @@ class DtmfSender(IDtmfSender, threading.Thread):
                 return
 
     def __set_playing(self, sign):
-        assert type(sign) is str
+        assert type(sign) is int
         s = Gst.Structure.new_empty("dtmf-event")
         s.set_value('type', 1)
-        s.set_value('number', int(sign))
+        s.set_value('number', sign)
         s.set_value('volume', 25)
         s.set_value('start', True)
         e = Gst.Event.new_custom(Gst.EventType.CUSTOM_UPSTREAM, s)
