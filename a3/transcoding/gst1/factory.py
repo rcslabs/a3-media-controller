@@ -12,7 +12,7 @@ from _dtmf_sender import DtmfSender as _DtmfSender
 from ._rtp_frontend import RtpFrontend as _RtpFrontend
 from ._endec import RTP_CAPS
 from ._link import Link as _Link
-from .gst_elements import *
+from ._elements import *
 
 
 class _Gst1TranscodingFactoryImpl(ITranscodingFactory):

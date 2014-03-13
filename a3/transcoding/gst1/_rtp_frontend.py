@@ -11,7 +11,7 @@ from ...media import MediaType, Codec, RtpCodec
 from .._base import IRtpFrontend
 from ..rtp_socket_pair import RtpSocketPair
 
-from .gst_elements import *
+from ._elements import *
 from ._pads import MediaSource, MediaDestination, VirtualMediaSource, VirtualMediaDestination
 from ._endec import RTP_CAPS, create_depay, create_pay
 

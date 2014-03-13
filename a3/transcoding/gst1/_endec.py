@@ -7,7 +7,7 @@ __author__ = 'RCSLabs'
 
 
 from ...media import CODEC, RtpCodec, Codec
-from .gst_elements import *
+from ._elements import *
 
 
 RTP_CAPS = {
@@ -19,39 +19,6 @@ RTP_CAPS = {
     CODEC.VP8: "application/x-rtp,media=(string)video,encoding-name=(string)VP8-DRAFT-IETF-01,clock-rate=90000,rtcp-fb-nack-pli=(int)1,rtcp-fb-ccm-fir=(int)1",
     CODEC.H263_1998: "application/x-rtp,media=(string)video,encoding-name=(string)H263-1998,clock-rate=90000,rtcp-fb-nack-pli=(int)1,rtcp-fb-ccm-fir=(int)1"
 }
-
-
-# def create_depay_decoder(codec):
-#     assert type(codec) is RtpCodec
-#     decoder = None
-#     if codec == CODEC.PCMA:
-#         decoder = PCMADepayDecoder()
-#     elif codec == CODEC.H264:
-#         decoder = H264DepayDecoder()
-#     elif codec == CODEC.VP8:
-#         decoder = VP8DepayDecoder()
-#     elif codec == CODEC.H263_1998:
-#         decoder = H263_1998DepayDecoder()
-#     else:
-#         # TODO: throw exception
-#         assert not ("Known media for decoding " + codec.encoding_name)
-#     return decoder
-#
-#
-# def create_encoder_pay(rtp_codec):
-#     assert type(rtp_codec) is RtpCodec
-#     encoder = None
-#     if rtp_codec.codec == CODEC.PCMA:
-#         encoder = PCMAEncoderPay(1111L, rtp_codec.payload_type)
-#     elif rtp_codec.codec == CODEC.H264:
-#         encoder = H264EncoderPay(2222L, rtp_codec.payload_type)
-#     elif rtp_codec.codec == CODEC.VP8:
-#         encoder = VP8EncoderPay(2222L, rtp_codec.payload_type)
-#     elif rtp_codec.codec == CODEC.H263_1998:
-#         encoder = H263_1998EncoderPay(2222L, rtp_codec.payload_type)
-#     else:
-#         assert not ("Known media for encoding " + rtp_codec.encoding_name)
-#     return encoder
 
 
 def create_depay(rtp_codec):

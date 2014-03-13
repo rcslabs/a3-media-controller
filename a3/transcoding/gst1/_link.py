@@ -31,7 +31,7 @@ __author__ = 'RCSLabs'
 from ...logging import LOG
 from ...media import MediaType, Codec, RtpCodec
 from ._pads import MediaSource, MediaDestination, VirtualMediaSource, VirtualMediaDestination
-from .gst_elements import GstPipeline
+from ._elements import GstPipeline
 from ._endec import create_decoder, create_encoder
 
 
