@@ -12,9 +12,9 @@ preferred way to run is to execute command
 import time
 
 from a3 import messaging
-from point.room import Room
+from a3.point.room import Room
 from netpoint.balancer import Balancer
-from point.point_controller import PointController, PointControllerError, Event as PointEvent
+from a3.point.point_controller import PointController, PointControllerError, Event as PointEvent
 from a3.logging import LOG
 from a3.transcoding._base import ITranscodingFactory
 from a3.config import IConfig
