@@ -5,6 +5,7 @@ Gstreamer-1 elements
 
 
 from ...logging import LOG
+from .._base import ITranscodingContext
 from ._socket import Socket
 
 
@@ -54,7 +55,8 @@ RTPBIN = "rtpbin"
 
 
 class GstElement(object):
-    def __init__(self, element=None):
+    def __init__(self, element):
+        assert element
         self._element = element
 
     @property
@@ -66,11 +68,12 @@ class GstElement(object):
         return self._element
 
     def link(self, next_):
-        assert self.element
+        assert self._element
         assert issubclass(type(next_), GstElement)
-        self.element.link(next_.element)
+        self._element.link(next_._element)
 
     def get_pad(self, pad_name):
+        assert self._element
         assert type(pad_name) is str
         pad = self._element.get_static_pad(pad_name)
         assert pad
@@ -78,7 +81,7 @@ class GstElement(object):
 
     #def unlink(self, next=None):
     #    assert(next is None or issubclass(type(next), GstElement))
-    #    self.element.unlink(next)
+    #    self._element.unlink(next)
 
     @property
     def sink_pad(self):
@@ -89,31 +92,45 @@ class GstElement(object):
         return self.get_pad("src")
 
     def get_property(self, property_name):
+        assert self._element
         return self._element.get_property(property_name)
+
+    def play(self):
+        assert self._element
+        self._element.set_state(Gst.State.PLAYING)
+
+    def pause(self):
+        assert self._element
+        self._element.set_state(Gst.State.PAUSED)
+
+    def stop(self):
+        assert self._element
+        self._element.set_state(Gst.State.NULL)
+
+    def dispose(self):
+        assert self._element
+        self._element.set_state(Gst.State.NULL)
+        del self._element
 
 
 class GstBin(GstElement):
-    def __init__(self, *args):
-        super(GstBin, self).__init__(Gst.Bin())
+    def __init__(self, str_template=None):
+        assert str_template is None or type(str_template) is str
+        super(GstBin, self).__init__(Gst.parse_bin_from_description(str_template, True) if str_template else Gst.Bin())
 
-        prev = None
-        for el in args:
-            self.add(el)
-            if prev:
-                prev.link(el)
-            prev = el
+    def add(self, gst_element):
+        assert isinstance(gst_element, GstElement)
+        self._element.add(gst_element._element)
+        gst_element._element.sync_state_with_parent()
 
-    def add(self, *args):
-        for el in args:
-            assert issubclass(type(el), GstElement)
-            self._element.add(el.element)
-            el.element.sync_state_with_parent()
+    def remove(self, gst_element):
+        assert isinstance(gst_element, GstElement)
+        self._element.remove(gst_element._element)
 
 
 #
 # Src
 #
-
 class VideoTestSrc(GstElement):
     def __init__(self):
         super(VideoTestSrc, self).__init__(Gst.parse_bin_from_description(VIDEO_TEST_SRC, True))
@@ -125,20 +142,12 @@ class AudioTestSrc(GstElement):
 
 
 class UdpSrc(GstElement):
-    def __init__(self, port=0, iface="", caps="", socket=None):
+    def __init__(self, socket):
+        assert type(socket) is Socket
         super(UdpSrc, self).__init__(Gst.ElementFactory.make('udpsrc', None))
-        self.__iface = iface
-        if socket:
-            assert type(socket) is Socket
-            self._element.set_property("socket", socket.socket)
-            self._element.set_property("close-socket", False)
-
-        else:
-            self._element.set_property("port", port)
+        self._element.set_property("socket", socket.socket)
+        self._element.set_property("close-socket", False)
         self._element.set_state(Gst.State.PAUSED)
-
-        if caps:
-            self.set_caps(caps)
 
     def set_caps(self, str_caps):
         self._element.set_property("caps", Gst.caps_from_string(str_caps))
@@ -152,12 +161,8 @@ class UdpSrc(GstElement):
 
 
 #
-#
 # Sink
 #
-#
-
-
 class FakeSink(GstElement):
     def __init__(self):
         #fakesink sync=true async=false
@@ -300,7 +305,7 @@ class TeeWrapper(GstElement):
         src_pad = self._element.get_request_pad(SRC_PAD_NAME)
         assert src_pad
         LOG.debug("Adding tee pad: %s", src_pad.get_property("name"))
-        src_pad.link(next_.element.get_static_pad("sink"))
+        src_pad.link(next_._element.get_static_pad("sink"))
         self.__next_elements.append((src_pad, next_))
 
     def unlink(self, next_):
@@ -313,7 +318,7 @@ class TeeWrapper(GstElement):
         LOG.debug("Removing tee pad %s", src_pad.get_property("name"))
         self.__next_elements.remove((src_pad, next_))
         src_pad.set_active(False)
-        src_pad.unlink(next_.element.get_static_pad('sink'))
+        src_pad.unlink(next_._element.get_static_pad('sink'))
         self._element.remove_pad(src_pad)
         #next_.set_state(Gst.State.PAUSED)
 
@@ -402,21 +407,20 @@ class H263_1998Pay(GstElement):
 #
 # encoder
 #
-class Encoder(GstElement):
-    pass
+class Encoder(GstBin):
+    def __init__(self, str_template):
+        assert type(str_template) is str
+        super(Encoder, self).__init__(str_template)
 
 
-class VideoEncoder(GstElement):
+class VideoEncoder(Encoder):
     def __init__(self, template):
-        super(VideoEncoder, self).__init__(
-            Gst.parse_bin_from_description(template.substitute(dict(width=WIDTH,
-                                                                    height=HEIGHT,
-                                                                    framerate=FRAMERATE)), True))
+        super(VideoEncoder, self).__init__(template.substitute(dict(width=WIDTH, height=HEIGHT, framerate=FRAMERATE)))
 
 
-class AudioEncoder(GstElement):
+class AudioEncoder(Encoder):
     def __init__(self, template):
-        super(AudioEncoder, self).__init__(Gst.parse_bin_from_description(template.substitute(dict()), True))
+        super(AudioEncoder, self).__init__(template.substitute(dict()))
 
 
 class VP8Encoder(VideoEncoder):
@@ -471,95 +475,18 @@ class PCMADecoder(Decoder):
                                                                          True))
 
 
+class GstPipeline(GstElement, ITranscodingContext):
+    def __init__(self):
+        super(GstPipeline, self).__init__(Gst.Pipeline())
 
-# #
-# # encode & pay
-# #
-#
-# class EncoderPay(GstElement):
-#     def __init__(self, template, ssrc_id, payload_type):
-#         assert type(ssrc_id) is long
-#         assert type(payload_type) is int
-#         super(EncoderPay, self).__init__(Gst.parse_bin_from_description(
-#             template.substitute(dict(
-#                 ssrc=ssrc_id,
-#                 pt=payload_type)), True))
-#
-# class VP8EncoderPay(EncoderPay):
-#     def __init__(self, ssrc_id, payload_type):
-#         super(VP8EncoderPay, self).__init__(VP8_ENCODE, ssrc_id, payload_type)
-#
-#
-# class H264EncoderPay(EncoderPay):
-#     def __init__(self, ssrc_id, payload_type):
-#         super(H264EncoderPay, self).__init__(H264_ENCODE, ssrc_id, payload_type)
-#
-#
-# class H263_1998EncoderPay(EncoderPay):
-#     def __init__(self, ssrc_id, payload_type):
-#         super(H263_1998EncoderPay, self).__init__(H263_1998_ENCODE, ssrc_id, payload_type)
-#
-#
-# class PCMAEncoderPay(EncoderPay):
-#     def __init__(self, ssrc_id, payload_type=8):
-#         super(PCMAEncoderPay, self).__init__(PCMA_ENCODE, ssrc_id, payload_type)
-#
-#
-# #
-# # depay & decode
-# #
-#
-# class DepayDecoder(GstElement):
-#     def __init__(self, template):
-#         super(DepayDecoder, self).__init__(Gst.parse_bin_from_description(template, True))
-#
-#
-# class VP8DepayDecoder(DepayDecoder):
-#     def __init__(self):
-#         super(VP8DepayDecoder, self).__init__(VP8_DECODE)
-#
-#
-# class H264DepayDecoder(DepayDecoder):
-#     def __init__(self):
-#         super(H264DepayDecoder, self).__init__(H264_DECODE)
-#
-# class H263_1998DepayDecoder(DepayDecoder):
-#     def __init__(self):
-#         super(H263_1998DepayDecoder, self).__init__(H263_1998_DECODE)
-#
-#
-# class PCMADepayDecoder(DepayDecoder):
-#     def __init__(self):
-#         super(PCMADepayDecoder, self).__init__(PCMA_DECODE)
-#
+    def add(self, gst_element):
+        assert isinstance(gst_element, GstElement)
+        self._element.add(gst_element._element)
+        gst_element._element.sync_state_with_parent()
 
+    def remove(self, gst_element):
+        assert isinstance(gst_element, GstElement)
+        self._element.remove(gst_element._element)
 
-class GstPipeline(object):
-    def __init__(self, *args):
-        self._element = Gst.Pipeline()
-
-        prev = None
-        for el in args:
-            self.add(el)
-            if prev:
-                prev.link(el)
-            prev = el
-
-    def add(self, *args):
-        for el in args:
-            assert issubclass(type(el), GstElement)
-            self._element.add(el.element)
-            el.element.sync_state_with_parent()
-
-    def remove(self, element_wrapper):
-        assert(issubclass(type(element_wrapper), GstElement))
-        self._element.remove(element_wrapper.element)
-
-    def play(self):
-        self._element.set_state(Gst.State.PLAYING)
-
-    def pause(self):
-        self._element.set_state(Gst.State.PAUSED)
-
-    def stop(self):
-        self._element.set_state(Gst.State.NULL)
+    def dispose(self):
+        super(GstPipeline, self).dispose()

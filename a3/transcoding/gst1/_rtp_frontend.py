@@ -166,8 +166,8 @@ class RtpFrontend(IRtpFrontend):
         assert self.__rtcp_src is None
         self.__remote_rtp_codecs = remote_rtp_codecs
 
-        self.__rtp_src = UdpSrc(socket=self.__conn.rtp_socket)
-        self.__rtcp_src = UdpSrc(socket=self.__conn.rtcp_socket)
+        self.__rtp_src = UdpSrc(self.__conn.rtp_socket)
+        self.__rtcp_src = UdpSrc(self.__conn.rtcp_socket)
 
         self.__bin.add(self.__rtp_src)
         self.__bin.add(self.__rtcp_src)
