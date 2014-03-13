@@ -77,3 +77,8 @@ class Room(object):
         if self.__video_room is None:
             self.__video_room = MediaRoom(MediaType.VIDEO, self.__transcoding_factory)
         return self.__video_room
+
+    def dispose(self):
+        """
+        TODO: implement clean-up
+        """
