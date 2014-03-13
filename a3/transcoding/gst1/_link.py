@@ -60,6 +60,23 @@ class Link(object):
         media_source.subscribe(self.__media_source_resolved)
         media_destination.subscribe(self.__media_destination_resolved)
 
+    def set_context(self, context):
+        LOG.debug("Link.set_context %s", str(context))
+        if self.__context is context:
+            return
+
+        if self.__context:
+            if self.__decoder:
+                self.__context.remove(self.__decoder)
+            if self.__encoder:
+                self.__context.remove(self.__encoder)
+            self.__context = None
+
+        # TODO:
+        # self.__context = context
+        # if self.__context:
+        #   add and create links
+
     def __media_source_resolved(self, media_source):
         """
         :type media_source: MediaSource
@@ -117,6 +134,7 @@ class Link(object):
             # encoder (-> Destination)
             self.__encoder = create_encoder(destination_codec)
             self.__context.add(self.__encoder)
+            self.__encoder.element.sync_state_with_parent()
             self.__encoder.src_pad.link(self.__media_destination.gst_pad)
 
             # source (-> encoder)
@@ -140,3 +158,15 @@ class Link(object):
 
             # source (-> decoder)
             self.__media_source.gst_pad.link(self.__decoder.sink_pad)
+
+    def dispose(self):
+        assert self.__context is None
+        LOG.debug("Link.dispose")
+        if self.__decoder:
+            self.__decoder.dispose()
+            del self.__decoder
+
+        if self.__encoder:
+            self.__encoder.dispose()
+            del self.__encoder
+
