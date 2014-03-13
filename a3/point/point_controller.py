@@ -5,9 +5,9 @@ from a3.logging import LOG
 from a3.sdp.capabilities import Cc, Vv
 from a3.sdp.factory import Factory as SdpFactory
 from a3.sdp.error import SemanticError
-from point import Point, IPointListener
 from a3.sdp.raw.attributes.error import ParseError
 from a3.transcoding._base import ITranscodingFactory
+from .point import Point, IPointListener
 
 
 class MessageType:

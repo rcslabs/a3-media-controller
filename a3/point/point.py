@@ -12,6 +12,7 @@ from a3.config import IConfig
 from a3.config.profile import Profile
 from ._base import MediaPointError, IMediaPointListener
 from .rtp_media_point import RtpMediaPoint
+from .rtmp_media_point import RtmpMediaPoint
 from .srtp_media_point import SrtpMediaPoint
 from ._dtmf_media_point import DtmfMediaPoint
 from ._filesave_media_point import FilesaveMediaPoint
@@ -59,9 +60,15 @@ class Point(IMediaPointListener):
         self.__audio_point_ready = not bool(self.__local_sdp.audio)
         self.__video_point_ready = not bool(self.__local_sdp.video)
         if self.__local_sdp.audio:
-            self.__audio_point = RtpMediaPoint(self.__point_id + ".audio", self.__transcoding_factory)
+            audio_point_id = self.__point_id + ".audio"
+            if "RTP" in self.__local_sdp.audio.proto:
+                self.__audio_point = RtpMediaPoint(audio_point_id, self.__transcoding_factory)
+            elif "RTMP" in self.__local_sdp.audio.proto:
+                self.__audio_point = RtmpMediaPoint(audio_point_id, self.__transcoding_factory)
+            else:
+                assert 0
 
-            if self.__local_sdp.audio.proto == "RTP/SAVPF":
+            if "SAVPF" in self.__local_sdp.audio.proto:
                 self.__audio_point = SrtpMediaPoint(self.__audio_point,
                                                     balancer=balancer,
                                                     config=config,
@@ -78,9 +85,15 @@ class Point(IMediaPointListener):
             self.__audio_point.set_local_media_description(self.__local_sdp.audio)
 
         if self.__local_sdp.video:
-            self.__video_point = RtpMediaPoint(self.__point_id + ".video", self.__transcoding_factory)
+            video_point_id = self.__point_id + ".video"
+            if "RTP" in self.__local_sdp.video.proto:
+                self.__video_point = RtpMediaPoint(video_point_id, self.__transcoding_factory)
+            elif "RTMP" in self.__local_sdp.video.proto:
+                self.__video_point = RtmpMediaPoint(video_point_id, self.__transcoding_factory)
+            else:
+                assert 0
 
-            if self.__local_sdp.video.proto == "RTP/SAVPF":
+            if "SAVPF" in self.__local_sdp.video.proto:
                 self.__video_point = SrtpMediaPoint(self.__video_point,
                                                     balancer=balancer,
                                                     config=config,
@@ -121,12 +134,12 @@ class Point(IMediaPointListener):
         LOG.debug("Point.dispose [%s]", self.__point_id)
         if self.__audio_point:
             self.__audio_point.dispose()
+            del self.__audio_point
         if self.__video_point:
             self.__video_point.dispose()
+            del self.__video_point
         self.__local_sdp = None
         self.__remote_sdp = None
-        self.__audio_point = None
-        self.__video_point = None
         self.__audio_point_ready = False
         self.__video_point_ready = False
 

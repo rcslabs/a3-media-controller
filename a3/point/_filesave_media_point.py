@@ -28,11 +28,11 @@
 
 __author__ = 'RCSLabs'
 
-from a3.logging import LOG
-from a3.transcoding import ITranscodingFactory
+from ..logging import LOG
+from ..transcoding import ITranscodingFactory
+from ..transcoding.gst1._base import Gst
+from ..transcoding.gst1._pads import VirtualMediaSource, MediaSource
 from ._media_point_decorator import MediaPointDecorator
-from a3.transcoding.gst1._base import Gst
-from a3.transcoding.gst1._pads import VirtualMediaSource, MediaSource
 
 
 class FilesaveMediaPoint(MediaPointDecorator):

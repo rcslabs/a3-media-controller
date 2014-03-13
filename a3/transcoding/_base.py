@@ -130,7 +130,6 @@ class IDtmfSender(IMediaDestinationProvider, IMediaSourceProvider):
         """
 
 
-
 class ITranscodingFactory(object):
     __metaclass__ = ABCMeta
 
@@ -179,4 +178,3 @@ class ITranscodingFactory(object):
         """
         return list of supported codecs
         """
-
