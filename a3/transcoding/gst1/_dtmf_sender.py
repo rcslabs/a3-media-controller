@@ -19,6 +19,7 @@ from ...media import CODEC
 from .._base import IDtmfSender
 from ._base import Gst, GObject
 from ._pads import MediaSource, MediaDestination
+from ._elements import GstPipeline
 
 import threading
 import time
@@ -33,7 +34,8 @@ class DtmfSender(IDtmfSender, threading.Thread):
         threading.Thread.__init__(self)
         self.daemon = True
 
-        self.__is_terminated = False
+        self.__context = None
+        self.__is_terminated = True
 
         self.__input_selector = Gst.ElementFactory.make("input-selector", None)
         self.__dtmfsrc = Gst.ElementFactory.make("dtmfsrc", None)
@@ -68,29 +70,31 @@ class DtmfSender(IDtmfSender, threading.Thread):
                 self.__dtmf_buffer.append(dtmf_numbers[c])
         self.__send_dtmf_event.set()
 
-    def add_to_pipeline(self, pipeline):
-        #
-        # Pipeline here is gstreamer pipeline
-        # TODO: accept Pipeline wrapper
-        #
-        pipeline.add(self.__input_selector)
-        pipeline.add(self.__dtmfsrc)
-        self.__dtmfsrc.get_static_pad("src").link(self.__dtmf_destination_pad)
+    def set_context(self, context):
+        assert context is None or type(context) is GstPipeline
 
-    def remove_from_pipeline(self, pipeline):
-        #
-        # Pipeline here is gstreamer pipeline
-        # TODO: accept Pipeline wrapper
-        #
-        pipeline.remove(self.__dtmfsrc)
-        pipeline.remove(self.__input_selector)
+        if self.__context is context:
+            return
+
+        if self.__context:
+            self.__context._element.remove(self.__dtmfsrc)
+            self.__context._element.remove(self.__input_selector)
+
+        self.__context = context
+
+        if self.__context:
+            self.__context._element.add(self.__input_selector)
+            self.__context._element.add(self.__dtmfsrc)
+            self.__dtmfsrc.get_static_pad("src").link(self.__dtmf_destination_pad)
 
     def start(self):
         return super(DtmfSender, self).start()
 
     def stop(self):
-        self.__is_terminated = True
-        self.__send_dtmf_event.set()
+        if not self.__is_terminated:
+            self.__is_terminated = True
+            self.__send_dtmf_event.set()
+            self.join()
 
     def dispose(self):
         LOG("DtmfSender.dispose")
@@ -111,8 +115,10 @@ class DtmfSender(IDtmfSender, threading.Thread):
     # threading.Thread
     #
     def run(self):
+        self.__is_terminated = False
         self.__dtmf_thread_cycle()
         LOG.info("DTMF thread stopped")
+        self.__is_terminated = True
 
     #
     # private

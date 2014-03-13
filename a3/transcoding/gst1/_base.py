@@ -20,6 +20,3 @@ Gst.init(None)
 # "import gobject" to "from gi.repository import GObject
 #
 
-
-class IGstElementContainer(object):
-    pass

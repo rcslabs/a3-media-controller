@@ -64,13 +64,11 @@ class DtmfMediaPoint(MediaPointDecorator):
     def add_to_pipeline(self, pipeline):
         self.__pipeline = pipeline
         super(DtmfMediaPoint, self).add_to_pipeline(pipeline)
-        # Hack - DtmfSender accepts raw pipeline
-        self.__dtmf_sender.add_to_pipeline(pipeline._element)
+        self.__dtmf_sender.set_context(pipeline)
 
     def remove_from_pipeline(self, pipeline):
         super(DtmfMediaPoint, self).remove_from_pipeline(pipeline)
-        # Hack - DtmfSender accepts raw pipeline
-        self.__dtmf_sender.remove_from_pipeline(pipeline._element)
+        self.__dtmf_sender.set_context(None)
 
     def send_dtmf(self, dtmf):
         self.__dtmf_sender.send_dtmf(dtmf)
@@ -85,4 +83,4 @@ class DtmfMediaPoint(MediaPointDecorator):
 
     def dispose(self):
         self.__dtmf_sender.stop()
-        super(DtmfMediaPoint, self).stop()
+        super(DtmfMediaPoint, self).dispose()

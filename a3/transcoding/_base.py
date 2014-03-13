@@ -7,7 +7,7 @@ Base transcoding objects
 __author__ = 'RCSLabs'
 
 
-from abc import ABCMeta, abstractmethod
+from abc import ABCMeta, abstractmethod, abstractproperty
 
 
 class IMediaSource(object):
@@ -25,7 +25,19 @@ class IMediaDestination(object):
 
 
 class ITranscodingContext(object):
-    pass
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def pause(self):
+        pass
+
+    @abstractmethod
+    def play(self):
+        pass
+
+    @abstractmethod
+    def dispose(self):
+        pass
 
 
 class IMediaSourceProvider(object):
@@ -48,8 +60,52 @@ class IMediaDestinationProvider(object):
         """
 
 
-class IRtpFrontend(object):
+class IRtpFrontend(IMediaSourceProvider, IMediaDestinationProvider):
     __metaclass__ = ABCMeta
+
+    @abstractproperty
+    def rtp_port(self):
+        """
+        :return: rtp port
+        :rtype : int
+        """
+
+    @abstractproperty
+    def rtcp_port(self):
+        """
+        :return: rtcp port
+        :rtype : int
+        """
+
+    @abstractmethod
+    def dispose(self):
+        """
+        destroy the object
+        """
+
+
+class IRtmpFrontend(IMediaSourceProvider, IMediaDestinationProvider):
+    __metaclass__ = ABCMeta
+
+    @abstractproperty
+    def sub(self):
+        """
+        :return: subscribe rtmp url
+        :rtype : str
+        """
+
+    @abstractproperty
+    def pub(self):
+        """
+        :return: publish rtmp url
+        :rtype : str
+        """
+
+    @abstractmethod
+    def dispose(self):
+        """
+        destroy the object
+        """
 
 
 class IDtmfSender(IMediaDestinationProvider, IMediaSourceProvider):
@@ -62,16 +118,17 @@ class IDtmfSender(IMediaDestinationProvider, IMediaSourceProvider):
         """
 
     @abstractmethod
-    def add_to_pipeline(self, pipeline):
+    def set_context(self, context):
         """
-        add to pipeline
+        add/remove from transcoding context
         """
 
     @abstractmethod
-    def remove_from_pipeline(self, pipeline):
+    def dispose(self):
         """
-        add to pipeline
+        destroy element
         """
+
 
 
 class ITranscodingFactory(object):
@@ -88,13 +145,21 @@ class ITranscodingFactory(object):
     def create_rtp_frontend(self, media_type, profile):
         """
         create new rtp frontend
+        :rtype : IRtpFrontend
+        """
+
+    @abstractmethod
+    def create_rtmp_frontend(self, media_type, profile):
+        """
+        create new rtp frontend
+        :rtype : IRtmpFrontend
         """
 
     @abstractmethod
     def create_transcoding_context(self):
         """
         :return: Object on which transcoding works
-        :rtype : ``ITranscodingContext``
+        :rtype : ITranscodingContext
         """
 
     @abstractmethod

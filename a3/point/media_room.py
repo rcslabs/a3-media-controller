@@ -18,6 +18,7 @@ class MediaRoom(object):
 
         self.__points = []
         self.__context = self.__transcoding_factory.create_transcoding_context()
+        #self.__context.pause()
 
     def join(self, media_point):
         assert isinstance(media_point, IMediaPoint)

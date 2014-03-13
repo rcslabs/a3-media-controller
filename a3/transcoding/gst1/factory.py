@@ -10,6 +10,7 @@ from .._base import ITranscodingFactory
 from ._socket import Socket as _Socket
 from _dtmf_sender import DtmfSender as _DtmfSender
 from ._rtp_frontend import RtpFrontend as _RtpFrontend
+from ._rtmp_frontend import RtmpFrontend as _RtmpFrontend
 from ._endec import RTP_CAPS
 from ._link import Link as _Link
 from ._elements import *
@@ -17,13 +18,16 @@ from ._elements import *
 
 class _Gst1TranscodingFactoryImpl(ITranscodingFactory):
     """
-    Implements TranscodingFactory methods
+    Implements ITranscodingFactory methods
     """
     def create_socket(self, port, interface="0.0.0.0"):
         return _Socket(port, interface)
 
     def create_rtp_frontend(self, media_type, profile):
         return _RtpFrontend(media_type, profile)
+
+    def create_rtmp_frontend(self, media_type, profile):
+        return _RtmpFrontend(media_type, profile)
 
     def create_transcoding_context(self):
         return GstPipeline()
