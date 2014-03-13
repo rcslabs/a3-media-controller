@@ -38,8 +38,7 @@ H263_1998_ENCODE = Template("""queue !
                             video/x-raw,framerate=(fraction)$framerate/1,width=(int)$width,height=(int)$height !
                             avenc_h263p""")
 
-PCMA_ENCODE = Template("""queue !
-                          alawenc""")
+PCMA_ENCODE = Template("""queue ! audiorate ! alawenc""")
 
 SRC_PAD_NAME = 'src_%u'
 SEND_RTP_SINK_PAD = "send_rtp_sink_%u"
@@ -188,7 +187,7 @@ class UdpSink(GstElement):
     """
         udpsink sync=false async=false host="127.0.0.1" port=0
     """
-    def __init__(self, port=0, host="127.0.0.1", socket=None):
+    def __init__(self, port, host, socket=None):
         super(UdpSink, self).__init__(Gst.ElementFactory.make("udpsink", None))
         self._element.set_property("sync", False)
         self._element.set_property("async", False)
@@ -381,6 +380,7 @@ class H264Pay(GstElement):
         super(H264Pay, self).__init__(Gst.ElementFactory.make("rtph264pay", None))
         self._element.set_property("ssrc", ssrc_id)
         self._element.set_property("pt", payload_type)
+        self._element.set_property("config-interval", 5)
 
 
 class VP8Pay(GstElement):
