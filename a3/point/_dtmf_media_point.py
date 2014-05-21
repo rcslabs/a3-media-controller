@@ -29,8 +29,7 @@
 __author__ = 'RCSLabs'
 
 
-
-from a3.transcoding import ITranscodingFactory, IDtmfSender
+from a3.transcoding import ITranscodingFactory, IDtmfSender, ITranscodingContext
 from ._media_point_decorator import MediaPointDecorator
 
 
@@ -44,7 +43,7 @@ class DtmfMediaPoint(MediaPointDecorator):
         assert isinstance(self.__dtmf_sender, IDtmfSender)
 
         self.__inner_link = None
-        self.__pipeline = None
+        self.__context = None
 
     def get_media_destination(self):
         """
@@ -54,21 +53,18 @@ class DtmfMediaPoint(MediaPointDecorator):
                                      !                     !                        !
                                      +---------------------+                        +------------------
         """
-        assert self.__pipeline is not None
+        assert self.__context is not None
         inner_media_destination = self._media_point.get_media_destination()
         dtmf_media_destination = self.__dtmf_sender.get_media_destination()
         dtmf_media_source = self.__dtmf_sender.get_media_source()
-        self.__inner_link = self.__transcoding_factory.create_link(self.__pipeline, dtmf_media_source, inner_media_destination)
+        self.__inner_link = self.__transcoding_factory.create_link(self.__context, dtmf_media_source, inner_media_destination)
         return dtmf_media_destination
 
-    def add_to_pipeline(self, pipeline):
-        self.__pipeline = pipeline
-        super(DtmfMediaPoint, self).add_to_pipeline(pipeline)
-        self.__dtmf_sender.set_context(pipeline)
-
-    def remove_from_pipeline(self, pipeline):
-        super(DtmfMediaPoint, self).remove_from_pipeline(pipeline)
-        self.__dtmf_sender.set_context(None)
+    def set_context(self, context):
+        assert context is None or isinstance(context, ITranscodingContext)
+        self.__context = context
+        super(DtmfMediaPoint, self).set_context(context)
+        self.__dtmf_sender.set_context(context)
 
     def send_dtmf(self, dtmf):
         self.__dtmf_sender.send_dtmf(dtmf)

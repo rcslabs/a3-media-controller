@@ -48,11 +48,8 @@ class MediaPointDecorator(IMediaPoint, IMediaPointListener):
     def set_remote_media_description(self, remote_media_description):
         self._media_point.set_remote_media_description(remote_media_description)
 
-    def add_to_pipeline(self, pipeline):
-        self._media_point.add_to_pipeline(pipeline)
-
-    def remove_from_pipeline(self, pipeline):
-        self._media_point.remove_from_pipeline(pipeline)
+    def set_context(self, context):
+        self._media_point.set_context(context)
 
     #
     # IMediaSourceProvider

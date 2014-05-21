@@ -13,6 +13,7 @@ from a3.sdp.media_description import MediaDescription
 from ._base import MediaPointError, IMediaPointListener, IMediaPoint
 from a3.sdp.raw.attribute import Attribute, StrAttributeValue
 
+
 class RtmpMediaPoint(IMediaPoint):
     #
     # public
@@ -27,6 +28,7 @@ class RtmpMediaPoint(IMediaPoint):
         self.__local_media_description = None
         self.__transcoding_factory = transcoding_factory
         self.__profile = None
+        self.__context = None
 
     #
     # IMediaPoint
@@ -85,11 +87,8 @@ class RtmpMediaPoint(IMediaPoint):
     def set_remote_media_description(self, remote_media_description):
         pass
 
-    def add_to_pipeline(self, pipeline):
-        self.__rtmp_frontend.add_to_pipeline(pipeline)
-
-    def remove_from_pipeline(self, pipeline):
-        self.__rtmp_frontend.remove_from_pipeline(pipeline)
+    def set_context(self, context):
+        self.__rtmp_frontend.set_context(context)
 
     def force_key_unit(self):
         self.__rtmp_frontend.force_key_unit()

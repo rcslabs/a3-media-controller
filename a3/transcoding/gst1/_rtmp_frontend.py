@@ -41,6 +41,8 @@ class RtmpFrontend(IRtmpFrontend):
         self.__remote_codec = None
         self.__local_codec = None
 
+        self.__context = None
+
         self.__bin = GstBin()
         # self.__bin._element = Gst.parse_bin_from_description("""
         #     rtmpsrc location="rtmp://192.168.1.200/live/subaudio live=1" !
@@ -101,15 +103,21 @@ class RtmpFrontend(IRtmpFrontend):
 
         self.__bin.element.set_state(Gst.State.PAUSED)
 
-    def add_to_pipeline(self, pipeline):
-        LOG.debug("RtmpFrontend: add_to_pipeline")
-        self.__pipeline = pipeline
-        pipeline._element.add(self.__bin.element)
-        #self.__bin.element.sync_state_with_parent()
+    def set_context(self, context):
+        assert context is None or type(context) is GstPipeline
 
-    def remove_from_pipeline(self, pipeline):
-        LOG.debug("RtmpFrontend: remove_from_pipeline")
-        pipeline._element.remove(self.__bin.element)
+        if self.__context is context:
+            return
+
+        if self.__context:
+            self.__context.remove(self.__bin)
+
+        self.__context = context
+
+        if self.__context:
+            self.__context = context
+            self.__context.add(self.__bin)
+            #self.__bin.element.sync_state_with_parent()
 
     @property
     def sub(self):

@@ -39,6 +39,14 @@ class ITranscodingContext(object):
     def dispose(self):
         pass
 
+    @abstractmethod
+    def add(self, element):
+        pass
+
+    @abstractmethod
+    def remove(self, element):
+        pass
+
 
 class IMediaSourceProvider(object):
     __metaclass__ = ABCMeta

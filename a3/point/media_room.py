@@ -47,12 +47,12 @@ class MediaRoom(object):
     def __add_point_to_pipeline(self, media_point):
         LOG.debug("MediaRoom.add_point %s", media_point.point_id)
         assert isinstance(media_point, IMediaPoint)
-        media_point.add_to_pipeline(self.__context)
+        media_point.set_context(self.__context)
 
     def __remove_point_from_pipeline(self, media_point):
         LOG.debug("MediaRoom.remove_point %s", media_point.point_id)
         assert isinstance(media_point, IMediaPoint)
-        media_point.remove_from_pipeline(self.__context)
+        media_point.set_context(None)
 
     def __link_points(self, a, b):
         assert isinstance(a, IMediaPoint)

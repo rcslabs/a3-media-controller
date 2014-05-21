@@ -131,11 +131,8 @@ class RtpMediaPoint(IMediaPoint):
         #self.__fake_room.add_transcoder(self.__transcoder)
         #self.__fake_room.play()
 
-    def add_to_pipeline(self, pipeline):
-        self.__rtp_frontend.set_context(pipeline)
-
-    def remove_from_pipeline(self, pipeline):
-        self.__rtp_frontend.set_context(None)
+    def set_context(self, context):
+        self.__rtp_frontend.set_context(context)
 
     #
     # IMediaSourceProvider

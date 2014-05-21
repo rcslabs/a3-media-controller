@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
 Gstreamer-1 elements
 """
@@ -16,6 +17,18 @@ from ._base import Gst
 WIDTH = 640
 HEIGHT = 480
 FRAMERATE = 15
+
+
+#   Format       Video Resolution
+#  SQCIF            128 × 96
+#  QCIF             176 × 144
+#  SCIF	            256 x 192
+#  SIF(525)	        352 x 240
+#  CIF/SIF(625)     352 × 288
+#  4SIF(525)        704 x 480
+#  4CIF/4SIF(625)	704 × 576
+#  16CIF	        1408 × 1152
+#  DCIF             528 × 384
 
 
 VP8_ENCODE = Template("""queue !

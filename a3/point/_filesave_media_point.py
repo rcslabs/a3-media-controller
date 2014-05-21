@@ -40,7 +40,7 @@ class FilesaveMediaPoint(MediaPointDecorator):
         assert isinstance(transcoding_factory, ITranscodingFactory)
         super(FilesaveMediaPoint, self).__init__(media_point)
         self.__transcoding_factory = transcoding_factory
-        self.__pipeline = None
+        self.__context = None
         self.__media_source = VirtualMediaSource()
         self.__tee = None
         self.__fakesink = None
@@ -54,7 +54,7 @@ class FilesaveMediaPoint(MediaPointDecorator):
                                      +---------------------+                            +------------------
         """
         LOG.debug("FilesaveMediaPoint: get_media_source")
-        assert self.__pipeline is not None
+        assert self.__context is not None
         inner_media_source = self._media_point.get_media_source()
         inner_media_source.subscribe(self.__inner_media_source_resolved)
         return self.__media_source
@@ -72,22 +72,22 @@ class FilesaveMediaPoint(MediaPointDecorator):
         filesink = Gst.ElementFactory.make("filesink", None)
         filesink.set_property("location", "/tmp/" + self._media_point.point_id + ".wav")
 
-        self.__pipeline._element.add(filesink)
+        self.__context._element.add(filesink)
         filesink.sync_state_with_parent()
 
-        self.__pipeline._element.add(waveenc)
+        self.__context._element.add(waveenc)
         waveenc.sync_state_with_parent()
 
-        self.__pipeline._element.add(alawdec)
+        self.__context._element.add(alawdec)
         alawdec.sync_state_with_parent()
 
-        self.__pipeline._element.add(capsfilter1)
+        self.__context._element.add(capsfilter1)
         capsfilter1.sync_state_with_parent()
 
-        self.__pipeline._element.add(capsfilter2)
+        self.__context._element.add(capsfilter2)
         capsfilter2.sync_state_with_parent()
 
-        self.__pipeline._element.add(tee)
+        self.__context._element.add(tee)
         tee.sync_state_with_parent()
 
         tee_sink, tee_src_1, tee_src_2 = tee.get_static_pad("sink"), tee.get_request_pad("src_%u"), tee.get_request_pad("src_%u"),
@@ -118,12 +118,9 @@ class FilesaveMediaPoint(MediaPointDecorator):
 
         self.__media_source.resolve(MediaSource(capsfilter1_src, inner_media_source.codec))
 
-    def add_to_pipeline(self, pipeline):
-        self.__pipeline = pipeline
-        super(FilesaveMediaPoint, self).add_to_pipeline(pipeline)
-
-    def remove_from_pipeline(self, pipeline):
-        super(FilesaveMediaPoint, self).remove_from_pipeline(pipeline)
+    def set_context(self, context):
+        self.__context = context
+        super(FilesaveMediaPoint, self).set_context(context)
 
 
 

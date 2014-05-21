@@ -95,9 +95,5 @@ class IMediaPoint(IMediaSourceProvider, IMediaDestinationProvider):
         """
 
     @abstractmethod
-    def add_to_pipeline(self, pipeline):
-        pass
-
-    @abstractmethod
-    def remove_from_pipeline(self, pipeline):
+    def set_context(self, context):
         pass
