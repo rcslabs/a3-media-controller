@@ -177,10 +177,10 @@ class PointController(IPointListener):
         assert self.__point is None
 
         # DEBUG!
-        if "H264/90000" in cc["video"]:
-            cc["video"].remove("H264/90000")
-            #cc["video"].insert(0, "H263-1998/90000")
-            cc["video"].insert(0, "VP8/90000")
+        #if "H264/90000" in cc["video"]:
+        #    cc["video"].remove("H264/90000")
+        #    #cc["video"].insert(0, "H263-1998/90000")
+        #    cc["video"].insert(0, "VP8/90000")
 
         try:
             sdp = SdpFactory.create_offer(Cc(cc), Vv(vv), self.__transcoding_factory.get_supported_codecs())
