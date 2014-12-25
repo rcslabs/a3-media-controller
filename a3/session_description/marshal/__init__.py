@@ -12,7 +12,7 @@ JABBER_MIME_TYPE = 'application/jabber+xml'
 
 
 from .sdp import SdpMarshal
-#from .jabber import JabberMarshal
+# from .jabber import JabberMarshal
 from ._base import DeserializeException, SerializeException
 
 
@@ -23,13 +23,15 @@ class Marshal(object):
     if none found raises SerializeException/DeserializeException
     """
 
-    def serialize(self, session_description, mime_type=SDP_MIME_TYPE):
+    @classmethod
+    def serialize(cls, session_description, mime_type=SDP_MIME_TYPE):
         if mime_type == SDP_MIME_TYPE:
             return SdpMarshal.serialize(session_description)
         else:
             raise SerializeException()
 
-    def deserialize(self, text, mime_type=SDP_MIME_TYPE):
+    @classmethod
+    def deserialize(cls, text, mime_type=SDP_MIME_TYPE):
         if mime_type == SDP_MIME_TYPE:
             return SdpMarshal.deserialize(text)
         else:
