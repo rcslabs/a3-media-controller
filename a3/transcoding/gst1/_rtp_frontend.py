@@ -118,7 +118,17 @@ class RtpFrontend(IRtpFrontend):
             LOG.debug("RtpFrontend: got remote media pt=%d", payload_type)
             rtp_codecs = [c for c in self.__remote_rtp_codecs if c.payload_type == payload_type]
             assert len(rtp_codecs) == 1
-            self.__create_depay(rtp_codecs[0], pad)
+            if self.__depay is None:
+                self.__create_depay(rtp_codecs[0], pad)
+            else:
+                # another stream is started
+                # we can use a new one or reuse existing
+                if payload_type == 8:
+                    # hack: replace current stream with a new one
+                    pass
+                else:
+                    # ignore
+                    pass
 
     def request_pt_map(self, obj, _, pt, extra):
         LOG.debug("RtpFrontend: request_pt_map on pt=%d", pt)
